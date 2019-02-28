@@ -97,7 +97,6 @@ Seeder.prototype.disconnect = function () {
 }
 
 Seeder.prototype.setLogging = function (bool) {
-    console.log('Set' + bool)
     this.logging = bool;
 }
 
