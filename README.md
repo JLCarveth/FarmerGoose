@@ -1,5 +1,5 @@
 # FarmerGoose
-Node module to persist data once to a MongoDB system. Has a sole dependency of `mongoose`. This module is used for [Database Seeding](https://en.wikipedia.org/wiki/Database_seeding). A good example of how it works can be seen in `index.js`.
+Node module to persist data once to a MongoDB system. Has a sole dependency of `mongoose`. This module is used for [Database Seeding](https://en.wikipedia.org/wiki/Database_seeding). A good example of how it works can be seen in `test.js`.
   
 # Seeder()
 `Seeder` is the primary class in the module. It consists of the following methods:
