@@ -15,6 +15,7 @@ mongoose.Promise = Promise
  */
 const Seeder = function () {
     this.connected = false;
+    this.logging = false;
 }
 
 /**
@@ -38,19 +39,22 @@ Seeder.prototype.connect = function (...params) {
         opts = arguments[1]
         cb = arguments[2]
     } else {
-        console.error('Seeder.connect() only takes 1-3 arguments.')
+        if (this.logging == true) console.error('Seeder.connect() only takes 1-3 arguments.')
     }
 
     // If mongoose already has a connection
     if (mongoose.connection.readystate == 1) {
         that.connected = true
-        cb();
+        cb(null, true);
     } else {
         mongoose.connect(db, opts, (error, result) => {
-            if (error) console.error('Could not make connection to MongoDB')
+            if (error) {
+                if (that.logging == true) console.error('Could not make connection to MongoDB')
+                callback(error)
+            }
             else {
                 that.connected = true
-                cb()
+                cb(null,true)
             }
         })
     }
@@ -64,7 +68,7 @@ Seeder.prototype.connect = function (...params) {
  */
 Seeder.prototype.seedData = function (data, callback) {
     if (this.connected == false) {
-        console.error('Not connected to MongoDB.')
+        if (this.logging == true) console.error('Not connected to MongoDB.')
     } else {
         // Stores all promises to be resolved
         var promises = []
@@ -72,11 +76,13 @@ Seeder.prototype.seedData = function (data, callback) {
         const Model = mongoose.model(data.model)
         // For each object in the 'documents' field of the main object
         data.documents.forEach((item) => {
-            console.log('Item: ' + item)
+            if (this.logging == true) console.log('Item: ' + JSON.stringify(item))
             promises.push(promise(Model, item))
         })
         // Fulfil each Promise in parallel
-        Promise.all(promises).then(callback).catch(()=>{})
+        Promise.all(promises).then(callback(null, true)).catch((e)=>{
+            callback(e)
+        })
     }
 }
 
@@ -87,7 +93,12 @@ Seeder.prototype.seedData = function (data, callback) {
 Seeder.prototype.disconnect = function () {
     mongoose.disconnect()
     this.connected = false
-    console.log('Seeder disconnecting.')
+    if (this.logging == true) console.log('Seeder disconnecting.')
+}
+
+Seeder.prototype.setLogging = function (bool) {
+    console.log('Set' + bool)
+    this.logging = bool;
 }
 
 /**

@@ -17,8 +17,11 @@ const data = {
         {username: 'The3rdGuy', age:36}
     ]
 }
-Seeder.connect(mongoURI, () => {
-    Seeder.seedData(data, () => {
-        console.log('Data seeded.')
+Seeder.setLogging(true)
+Seeder.connect(mongoURI, (error, result) => {
+    if (error) console.error(error)
+    else Seeder.seedData(data, (error, result) => {
+        if (error) console.error('Oopsie...' + error)
+        else console.log(`Success: ${result}`)
     })
 })
