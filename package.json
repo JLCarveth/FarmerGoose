@@ -13,6 +13,6 @@
   "author": "John L. Carveth",
   "license": "ISC",
   "dependencies": {
-    "mongoose": "^5.4.16"
+    "mongoose": "^5.7.5"
   }
 }
