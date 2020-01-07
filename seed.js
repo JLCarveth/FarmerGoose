@@ -22,58 +22,28 @@ const Seeder = function () {
 
 /**
  * @memberof module:seed.Seeder
- * @function connect
- * Connects to the MongoDB server
- * @param db the database connection URI
- * @param opts the mongoose connection options object
- * @param cb the function that can be called after connection
+ * @function connect opens a connection to the MongoDB server
+ * @param {String} url the mongodb access url 
  */
-Seeder.prototype.connect = function (...params) {
-    var that = this;
-    var db,cb
-    var opts = {}
-    if (arguments.length == 1) {
-        db = arguments[0]
-    } else if (arguments.length == 2) {
-        db = arguments[0]
-        cb = arguments[1]
-    } else if (arguments.length == 3) {
-        db = arguments[0]
-        opts = arguments[1]
-        cb = arguments[2]
-    } else {
-        cb(new Error('Seeder.connect() takes 1-3 arguments. Refer to documentation.'))
-    }
-
-    // If mongoose already has a connection
-    if (mongoose.connection.readystate == 1) {
-        that.connected = true
-        cb(null, true);
-    } else {
-        mongoose.connect(db, opts, (error, result) => {
-            if (error) cb(error)
-            else {
-                that.connected = true
-                cb(null,true)
-                // Notify any attached listeners
-                this.listeners.forEach((l) => {
-                     if (l.cause == 'onConnect') l.effect()
-                })
-            }
-        })
-    }
-}
-
-Seeder.prototype.connectPromise = function (url, opts) {
+Seeder.prototype.connect = function (url, opts) {
     return mongoose.connect(url, opts).then(() => {
         const connected = mongoose.connection.readyState == 1
         this.connected = connected
-        console.log('Connection made.')
+        this.listeners.forEach((l) => {
+            if (l.cause == 'onConnect') l.effect()
+        })
         return connected;
     });
 }
 
-Seeder.prototype.seedDataPromise = function (data) {
+/**
+ * @memberof module:seed.Seeder
+ * @function seedData
+ * @param {Object} data the data to be seeded
+ * @param {String} data.model the name of the model to which the data will be seeded
+ * @param {Array} data.documents the documents to be seeded 
+ */
+Seeder.prototype.seedData = function (data) {
     if (!this.connected) {
         console.error(new Error('Not connected to MongoDB'))
         return false
@@ -87,7 +57,7 @@ Seeder.prototype.seedDataPromise = function (data) {
         promises.push(promise(Model, item))
     })
     // Fulfil each Promise in parallel
-    Promise.all(promises).then(() => {
+    return Promise.all(promises).then(() => {
         return true
     }).catch(() => {
         console.log(`Connected:\t${this.connected}`)
@@ -106,32 +76,6 @@ Seeder.prototype.seedDataPromise = function (data) {
  */
 Seeder.prototype.addListener = function (cause, effect) {
     this.listeners.push({'cause':cause,'effect':effect})
-}
-
-/**
- * @memberof module:seed.Seeder
- * @function seedData
- * Persists data once to the MongoDB database.
- * @param {Object} data - the data to persist to the MongoDB collection
- * @param {Function} callback - will be called after data has been seeded.
- */
-Seeder.prototype.seedData = function (data, callback) {
-    if (this.connected == false) {
-        callback(new Error('Not connected to MongoDB.'))
-    } else {
-        // Stores all promises to be resolved
-        var promises = []
-        // Fetch the model via its name string from mongoose
-        const Model = mongoose.model(data.model)
-        // For each object in the 'documents' field of the main object
-        data.documents.forEach((item) => {
-            promises.push(promise(Model, item))
-        })
-        // Fulfil each Promise in parallel
-        Promise.all(promises).then(callback(null, true)).catch((e)=>{
-            callback(e)
-        })
-    }
 }
 
 /**
