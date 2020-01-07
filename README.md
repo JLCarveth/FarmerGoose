@@ -1,14 +1,53 @@
-# FarmerGoose
-Node module to persist data once to a MongoDB system. Has a sole dependency of `mongoose`. This module is used for [Database Seeding](https://en.wikipedia.org/wiki/Database_seeding). A good example of how it works can be seen in `test.js`.
-  
-# Seeder()
-`Seeder` is the primary class in the module. It consists of the following methods:
-  - `Seeder.connect(...params)`: Must be called before seeding data. Takes one-three parameters. A single parameter being the database connection URI. Two parameters passed to `Seeder.connect()` indicate a database connection URI and a callback, in that order. The callback is a function, and will only be called if the connection was successful.
-  - `Seeder.seedData(data)`: Takes a single parameter, an Object `data` to be seeded to the database. 
-    - `data.model` is a String of the model's name to which data will be seeded (for example, `'users'`).   
-    - `data.documents` is an array of objects that will be inserted into the appropriate collection.  
-Each entry in `data.documents` will only be inserted if there doesn't currently exist a document in the database with the same first value. For example, if `{name:'Felix', age:19}` already existed within the database, then `{username: 'Felix', age:14}` will not be inserted, but the other documents will.  
-  
-  - `Seeder.disconnect()`: should be called once the seeding is done. A new connection will need to be opened for further access to the database.
+# mongoose-seeder
 
-  - `Seeder.setLogging(boolean)`: By default Seeder does not log any messages. Calling `Seeder.setLogging(true)` will print info and error messages to the console. 
+A library to facilitate [database seeding](https://en.wikipedia.org/wiki/Database_seeding) of a MongoDB database. This library was designed to create all the data needed by a service upon it's first startup. More specifically, I designed `mongoose-seeder` to facilitate persisting role data to the database for role-based access control.
+
+## Usage
+Importing the `mongoose-seeder` mondule creates a new `Seeder` object. `Seeder` has the following methods available:
+
+| Function | Parameters | Returns | Description |
+|----------|------------|---------|-------------|
+| Seeder.connect | url, options | Promise | Returns a promise to connect to the MongoDB service using the url and option object provided. |
+| Seeder.seedData | data | boolean | Returns true if the data was seeded to the database without an error. |
+| Seeder.disconnect | | | Closes the Seeder object's connection to the database. Must be called when seeding is complete. Triggers a 'onDisconnect' flag to registered listeners. |
+| Seeder.isConnected | | Boolean | Returns true if Seeder maintains an active connection to the MongoDB service. |
+
+## Data Structure
+`Seeder.seedData` can only seed documents into a single collection at a time. The data object passed to `seedData()` is of the following structure:
+  
+    {
+        'model':'modelName',
+        'documents': [
+            {'attribute1':'value1', 'attribute2':50},
+            {'attribute1':'value2', 'attribute2':125}
+        ]
+    }
+
+`modelName` is the name of the model to which the documents will be inserted. It is the same string that would be used to fetch the given model using `mongoose.model('modelname')`. The documents are structured according to the applicable Schema. 
+
+# Example
+The most basic usage of mongoose-seeder is seen below. The seeded data would more likely be fetched from a configuration file in a production environment.
+
+    const Seeder    = require('mongoose-seeder')
+    const url       = 'mongodb://username:password@server.com:31720'
+    const data      = {
+        model: 'user',
+        documents: [
+            {username: 'DrPhil', age:7500},
+            {username: 'Felix', age:14},
+            {username: 'The3rdGuy', age:36}
+        ]
+    }
+
+    Seeder.connect(url, {}).then(
+        () => Seeder.seedData(data)
+    ).catch((error) => {
+        // An Error occurred.
+    }).finally(() => Seeder.disconnect())  
+      
+
+# Dependencies
+Currently, the sole dependency is [mongoose](https://mongoosejs.com/).
+
+# Contributions
+Contributions are more than welcome! There's no doubt I've made a few mistakes.

@@ -79,7 +79,8 @@ Seeder.prototype.addListener = function (cause, effect) {
 }
 
 /**
- * @function Seeder.disconnect
+ * @memberof module:seed.Seeder
+ * @function disconnect
  * Closes the connection to MongoDB
  */
 Seeder.prototype.disconnect = function () {
@@ -88,6 +89,15 @@ Seeder.prototype.disconnect = function () {
     this.listeners.forEach((l) => {
         if (l.cause == 'onDisconnect') l.effect()
    })
+}
+
+/**
+ * @memberof module:seed.Seeder
+ * @function isConnected
+ * @return true if Seeder has an active connection to MongoDB
+ */
+Seeder.prototype.isConnected = function () {
+    return this.connected
 }
 
 /**
@@ -100,19 +110,16 @@ const promise = function (model, item) {
         // To accurately query MongoDB, we need to extract a column name and value
         var key = Object.keys(item)[0]
         var value = item[key]
-        // Calling {key:value} inline doesn't work
         var queryParams = {}
         queryParams[key] = value
-
+        // Find if a similar item already exists
         model.findOne(queryParams).then((result) => {
             if (result == null) {
                 model.create(item).then((result) => {
                     resolve()
-                }).catch((error) => {reject()})
-            } else  {
-                resolve()
-            }
-        }).catch((error) => {reject()})
+                }).catch((error) => {reject(error)})
+            } else resolve() // Already exists so do not seed
+        }).catch((error) => {reject(error)})
     })
 }
 
