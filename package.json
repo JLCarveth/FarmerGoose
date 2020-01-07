@@ -1,18 +1,25 @@
 {
-  "name": "mongoose-seeder",
-  "version": "0.1.0",
-  "description": "A tool to populate a MongoDB collection with documents one time. To be used with mongoose.",
-  "main": "index.js",
+  "name": "good-mongoose-seeder",
+  "version": "1.1.0",
+  "description": "A tool to populate a MongoDB collection with documents one time. To be used with mongoose. Very lightweight module.",
+  "main": "seed.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node test.js"
+    "test": "node test.js"
   },
   "keywords": [
     "mongoose"
   ],
   "author": "John L. Carveth",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "mongoose": ">=5.7.5"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jlcarveth/mongoose-seeder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jlcarveth/mongoose-seeder/issues"
+  },
+  "homepage": "https://github.com/jlcarveth/mongoose-seeder#readme"
 }
