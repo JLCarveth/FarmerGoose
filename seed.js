@@ -44,6 +44,7 @@ Seeder.prototype.connect = function (url, opts) {
  * @param {Array} data.documents the documents to be seeded 
  */
 Seeder.prototype.seedData = function (data) {
+    // Mongoose might have been connected by another source, so check
     const connected = mongoose.connection.readyState == 1
     this.connected = connected
     if (!this.connected) {
