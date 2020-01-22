@@ -44,6 +44,8 @@ Seeder.prototype.connect = function (url, opts) {
  * @param {Array} data.documents the documents to be seeded 
  */
 Seeder.prototype.seedData = function (data) {
+    const connected = mongoose.connection.readyState == 1
+    this.connected = connected
     if (!this.connected) {
         console.error(new Error('Not connected to MongoDB'))
         return false
