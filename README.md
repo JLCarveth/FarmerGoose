@@ -3,7 +3,7 @@
 A library to facilitate [database seeding](https://en.wikipedia.org/wiki/Database_seeding) of a MongoDB database. This library was designed to create all the data needed by a service upon it's first startup. More specifically, I designed `mongoose-seeder` to facilitate persisting role data to the database for role-based access control.
 
 ## Usage
-Importing the `mongoose-seeder` mondule creates a new `Seeder` object. `Seeder` has the following methods available:
+Importing the `mongoose-seeder` module creates a new `Seeder` object. `Seeder` has the following methods available:
 
 | Function | Parameters | Returns | Description |
 |----------|------------|---------|-------------|
